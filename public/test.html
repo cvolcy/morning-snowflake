@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Winter City Animation</title>
+  <style>
+    canvas {
+      display: block;
+      margin: 0 auto;
+      background: linear-gradient(to bottom, #87CEEB, #FFFFFF);
+    }
+  </style>
+</head>
+<body>
+  <canvas id="winterCanvas"></canvas>
+
+  <script>
+    const canvas = document.getElementById('winterCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const citySpeed = 2;
+    const snowflakes = [];
+    const buildings = [];
+    let santaY = canvas.height / 4;
+    let floatDirection = 1; // 1 = down, -1 = up
+
+    function createSnowflakes() {
+      for (let i = 0; i < 100; i++) {
+        snowflakes.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          radius: Math.random() * 3 + 1,
+          speed: Math.random() * 2 + 1
+        });
+      }
+    }
+
+    function createBuildings() {
+      for (let i = 0; i < 10; i++) {
+        const height = 200 + Math.random() * 100;
+        const width = 100 + Math.random() * 100;
+        const y = canvas.height - height - Math.random() * 50;
+        const lights = [];
+        const roofFeature = Math.random() > 0.7 ? 'antenna' : 'waterTank';
+
+        // Generate lights for this building
+        for (let j = 0; j < Math.floor(height / 20); j++) {
+          for (let k = 0; k < Math.floor(width / 20); k++) {
+            if (Math.random() > 0.6) {
+              lights.push({ x: k * 20 + 5, y: j * 20 + 5, width: 10, height: 10, color: Math.random() > 0.3 ? '#FFF' : '#444' });
+            }
+          }
+        }
+
+        buildings.push({
+          x: canvas.width + i * 250,
+          y: y,
+          width: width,
+          height: height,
+          color: `hsl(${Math.random() * 50 + 200}, 20%, 50%)`,
+          lights: lights,
+          roofFeature: roofFeature
+        });
+      }
+    }
+
+    function drawBuildings(cyclePercent) {
+      for (let i = 0; i < buildings.length; i++) {
+        const building = buildings[i];
+
+        // Building body with gradient for depth
+        const gradient = ctx.createLinearGradient(0, building.y, 0, building.y + building.height);
+        gradient.addColorStop(0, building.color);
+        gradient.addColorStop(1, 'hsl(200, 20%, 30%)');
+
+        ctx.fillStyle = gradient;
+        ctx.fillRect(building.x, building.y, building.width, building.height);
+
+        // Draw windows (lights)
+        for (const light of building.lights) {
+          if (cyclePercent >= 1) {
+            light.color = Math.random() > 0.3 ? '#FFF' : '#444';
+          }
+          ctx.fillStyle = light.color; // Some lights off
+          ctx.fillRect(building.x + light.x, building.y + light.y, light.width, light.height);
+        }
+
+        // Roof features
+        drawRoofFeature(building);
+      }
+    }
+
+    function drawRoofFeature(building) {
+      if (building.roofFeature === 'antenna') {
+        ctx.strokeStyle = '#444';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(building.x + building.width / 2, building.y);
+        ctx.lineTo(building.x + building.width / 2, building.y - 20);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(building.x + building.width / 2, building.y - 25, 5, 0, Math.PI * 2);
+        ctx.fillStyle = '#444';
+        ctx.fill();
+      } else if (building.roofFeature === 'waterTank') {
+        ctx.fillStyle = '#666';
+        ctx.fillRect(building.x + building.width / 4, building.y - 15, building.width / 2, 17);
+        ctx.fillStyle = '#444';
+        ctx.fillRect(building.x + building.width / 4 + 5, building.y - 30, building.width / 2 - 10, 15);
+      }
+    }
+
+    function drawSnowflakes() {
+      snowflakes.forEach((flake) => {
+        ctx.beginPath();
+        ctx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2);
+        ctx.fillStyle = '#FFF';
+        ctx.fill();
+        flake.y += flake.speed;
+        flake.x -= 0.5;
+
+        if (flake.y > canvas.height) {
+          flake.y = 0;
+          flake.x = Math.random() * canvas.width;
+        }
+      });
+    }
+
+    function drawSanta() {
+      const santaX = canvas.width / 2 - 30; // Center horizontally
+
+      // Draw sleigh
+      ctx.fillStyle = 'darkred';
+      ctx.beginPath();
+      ctx.moveTo(santaX, santaY + 10);
+      ctx.lineTo(santaX + 60, santaY + 10);
+      ctx.lineTo(santaX + 70, santaY + 30);
+      ctx.lineTo(santaX - 10, santaY + 30);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.strokeStyle = 'gold';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Decorative lines on sleigh
+      ctx.strokeStyle = 'yellow';
+      ctx.beginPath();
+      ctx.moveTo(santaX + 5, santaY + 15);
+      ctx.lineTo(santaX + 55, santaY + 15);
+      ctx.stroke();
+
+      // Draw Santa
+      ctx.fillStyle = 'red';
+      ctx.fillRect(santaX + 10, santaY - 30, 20, 30); // Body
+      ctx.fillStyle = 'white';
+      ctx.fillRect(santaX + 10, santaY - 30, 20, 5);  // Fur trim
+      ctx.fillStyle = 'black';
+      ctx.fillRect(santaX + 10, santaY, 20, 5);       // Boots
+
+      ctx.beginPath();                                // Head
+      ctx.arc(santaX + 20, santaY - 35, 10, 0, Math.PI * 2);
+      ctx.fillStyle = '#F5CBA7';
+      ctx.fill();
+
+      // Santa's Hat
+      ctx.beginPath();
+      ctx.moveTo(santaX + 12, santaY - 45);
+      ctx.lineTo(santaX + 28, santaY - 45);
+      ctx.lineTo(santaX + 20, santaY - 55);
+      ctx.closePath();
+      ctx.fillStyle = 'red';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(santaX + 20, santaY - 55, 3, 0, Math.PI * 2);
+      ctx.fillStyle = 'white';
+      ctx.fill();
+
+      // Reindeer
+      drawReindeer(santaX + 80, santaY + 10);
+    }
+
+    function drawReindeer(startX, startY) {
+      for (let i = 0; i < 3; i++) {
+        const x = startX + i * 70;
+
+        // Body
+        ctx.fillStyle = 'brown';
+        ctx.fillRect(x, startY, 30, 15);
+
+        // Legs
+        ctx.fillRect(x + 5, startY + 15, 5, 10);
+        ctx.fillRect(x + 20, startY + 15, 5, 10);
+
+        // Head
+        ctx.beginPath();
+        ctx.arc(x + 35, startY + 5, 7, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Antlers
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x + 37, startY - 2);
+        ctx.lineTo(x + 42, startY - 10);
+        ctx.moveTo(x + 33, startY - 2);
+        ctx.lineTo(x + 28, startY - 10);
+        ctx.stroke();
+
+        // Harness line
+        if (i > 0) {
+          ctx.strokeStyle = 'gold';
+          ctx.beginPath();
+          ctx.moveTo(x - 35, startY + 5);
+          ctx.lineTo(x - 5, startY + 5);
+          ctx.stroke();
+        }
+      }
+    }
+
+    function updateSantaPosition() {
+      if (santaY > canvas.height / 4 + 20) floatDirection = -1; // Move up
+      else if (santaY < canvas.height / 4 - 20) floatDirection = 1; // Move down
+
+      santaY += floatDirection * 0.5; // Smooth floating effect
+    }
+
+    function updateBuildings() {
+      for (let i = 0; i < buildings.length; i++) {
+        buildings[i].x -= citySpeed;
+
+        // Recycle buildings
+        if (buildings[i].x + buildings[i].width < 0) {
+          buildings[i].x = canvas.width + Math.random() * 500;
+        }
+      }
+    }
+
+    function animate(timestamp) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawSnowflakes();
+      drawBuildings((timestamp - zero) / 4000);
+      drawSanta();
+      updateSantaPosition();
+      updateBuildings();
+
+      if ((timestamp - zero) / 4000 > 1) zero = performance.now()
+
+      requestAnimationFrame(animate);
+    }
+
+    let zero = performance.now();
+
+    createSnowflakes();
+    createBuildings();
+    animate(zero);
+  </script>
+</body>
+</html>
