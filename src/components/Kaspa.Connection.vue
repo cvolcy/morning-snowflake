@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import * as kaspa from '@/assets/kaspa-rpc/kaspa.js';
-import type { RpcClient } from '@/assets/kaspa-rpc/kaspa.js';
+import * as kaspa from '@/kaspa';
+import type { RpcClient } from '@/kaspa';
 import { computed, ref } from 'vue';
 
 const client = computed(() => { rpc.value?.isConnected ? rpc.value?.getInfo() : '' });
