@@ -5,10 +5,14 @@ const props = defineProps<{
     canvas: HTMLCanvasElement,
     ctx: CanvasRenderingContext2D
 }>();
-
 defineExpose({
-    spawnBlock
+    spawnBlock,
+    replay
 });
+const emit = defineEmits<{
+    gameOver: []
+}>();
+
 const kaspaLogo = ref<HTMLImageElement | null>(null);
 
 interface Bullet {
@@ -30,12 +34,13 @@ const maxAmmo = 1000;
 const blockMergeThreshold = 30;
 
 // Game State
+let gameState: 'started' | 'gameOver' = 'started';
 let shipX = props.canvas.width / 2 - shipWidth / 2;
 let bullets: Bullet[] = [];
 let aliens: Alien[] = [];
 let fallingBlocks: Block[] = [];
 let score = 0;
-let shipHealth = 100;
+let shipHealth = -1;
 let shipAmmo = 1000;
 let keysPressed: { [Name: string]: boolean } = {};
 let fireMode: 'default' | 'double' | 'triple' = "default";
@@ -103,6 +108,8 @@ function spawnAliens() {
 }
 
 function spawnBlock(opt?: { health: number, ammo: number }) {
+    if (gameState === 'gameOver') return;
+
     const healthValue = opt?.health ?? Math.floor(Math.random() * 5) + 1;
     const ammoValue = opt?.ammo ?? Math.floor(Math.random() * 60) + 10;
     const x = Math.random() * (props.canvas.width - blockWidth);
@@ -261,6 +268,19 @@ function drawShip(x: number, y: number) {
     }
 }
 
+function replay() {
+    gameState = 'started';
+    shipAmmo = 100;
+    shipHealth = 100;
+    bullets = [];
+    aliens = [];
+    fallingBlocks = [];
+    shipX = props.canvas.width / 2;
+    score = 0;
+
+    requestAnimationFrame(gameLoop);
+}
+
 // Game Loop
 function gameLoop() {
     update();
@@ -268,9 +288,14 @@ function gameLoop() {
     if (shipHealth > 0) {
         requestAnimationFrame(gameLoop);
     } else {
+        gameState = 'gameOver';
         props.ctx.fillStyle = 'red';
         props.ctx.font = '40px Arial';
-        props.ctx.fillText('Game Over!', props.canvas.width / 2 - 100, props.canvas.height / 2);
+        props.ctx.textAlign = "center";
+        props.ctx.fillText('Game Over!', props.canvas.width / 2, props.canvas.height / 2);
+        props.ctx.textAlign = "start";
+
+        emit('gameOver');
     }
 }
 

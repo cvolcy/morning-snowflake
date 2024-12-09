@@ -5,6 +5,7 @@ import Invaders from '@/components/Invaders.vue';
 
 const canvas = ref<HTMLCanvasElement | null>(null);
 const invaders = ref<typeof Invaders | null>(null);
+const showReplay = ref(false);
 
 function onBlockAdded(block: { hash: string, count: number }) {
     if (invaders.value != null) {
@@ -13,6 +14,11 @@ function onBlockAdded(block: { hash: string, count: number }) {
             ammo: block.count
         })
     }
+}
+
+function replay() {
+    invaders.value?.replay();
+    showReplay.value = false;
 }
 </script>
 <template>
@@ -23,12 +29,28 @@ function onBlockAdded(block: { hash: string, count: number }) {
             Kaspa blocks give 1 health and 1 ammo per transaction in the block.<br>
             You loose health for each health point of each alien reaching the bottom.
         </p>
-        <canvas ref="canvas" width="800" height="600"></canvas>
-        <Invaders ref="invaders" v-if="canvas" :canvas="canvas" :ctx="canvas!.getContext('2d')!" />
+        <div class="canvas-container">
+            <canvas ref="canvas" width="800" height="600"></canvas>
+            <button v-if="showReplay" @click="replay">Replay</button>
+        </div>
+        <Invaders ref="invaders" v-if="canvas" :canvas="canvas" :ctx="canvas!.getContext('2d')!"
+            @game-over="showReplay = true" />
         <KaspaConnection @block-added="onBlockAdded" />
     </div>
 </template>
 <style scoped>
+.canvas-container {
+    position: relative;
+}
+
+.canvas-container button {
+    position: absolute;
+    top: calc(50% + 20px);
+    width: 100px;
+    height: 50px;
+    left: calc(50% - 100px / 2);
+}
+
 canvas {
     width: 100%;
     display: block;
