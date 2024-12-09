@@ -1,6 +1,7 @@
 import { nextTick } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router'
 import KastaView from '../views/KastaView.vue'
+import InvadersView from '../views/InvadersView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -8,9 +9,9 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: KastaView,
+      component: InvadersView,
       meta: {
-        title: 'Santa Kas'
+        title: 'Kas | Invaders'
       }
     },
     {
@@ -27,7 +28,7 @@ const router = createRouter({
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
-      component: () => import('../views/KastaView.vue'),
+      component: KastaView,
       meta: {
         title: 'Santa Kas'
       }
@@ -35,9 +36,9 @@ const router = createRouter({
     {
       path: '/invaders',
       name: 'invaders',
-      component: () => import('../views/InvadersView.vue'),
+      component: InvadersView,
       meta: {
-        title: 'Invaders'
+        title: 'Kas | Invaders'
       }
     }
   ],
