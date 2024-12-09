@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
 const props = defineProps<{
     canvas: HTMLCanvasElement,
@@ -21,6 +21,27 @@ interface Bullet {
     type?: 'default' | 'super'
 }
 
+onMounted(() => {
+    window.addEventListener('blur', pauseGame);
+    window.addEventListener('focus', unPauseGame);
+});
+
+onBeforeUnmount(() => {
+    window.removeEventListener('blur', pauseGame);
+    window.removeEventListener('focus', unPauseGame);
+});
+
+function pauseGame() {
+    if (gameState === 'started') gameState = 'paused';
+}
+
+function unPauseGame() {
+    if (gameState === 'paused') {
+        gameState = 'started';
+        requestAnimationFrame(gameLoop);
+    }
+}
+
 // Game Constants
 const shipWidth = 50;
 const shipHeight = 30;  // Increased for ship sprite
@@ -34,7 +55,7 @@ const maxAmmo = 1000;
 const blockMergeThreshold = 30;
 
 // Game State
-let gameState: 'started' | 'gameOver' = 'started';
+let gameState: 'started' | 'gameOver' | 'paused' = 'started';
 let shipX = props.canvas.width / 2 - shipWidth / 2;
 let bullets: Bullet[] = [];
 let aliens: Alien[] = [];
@@ -102,13 +123,14 @@ grad1.addColorStop(0.5, "#758dd2");
 grad1.addColorStop(1, "#22e5b2");
 const alienDefaultColor = ["#2d383e", "#f79724", grad1];
 function spawnAliens() {
+    if (gameState !== 'started') return;
     const life = Math.floor(Math.random() * 10) + 1;
     const x = Math.random() * (props.canvas.width - alienWidth);
     aliens.push(new Alien(x, 0, life, alienDefaultColor[Math.floor(Math.random() * alienDefaultColor.length)]));
 }
 
 function spawnBlock(opt?: { health: number, ammo: number }) {
-    if (gameState === 'gameOver') return;
+    if (gameState !== 'started') return;
 
     const healthValue = opt?.health ?? Math.floor(Math.random() * 5) + 1;
     const ammoValue = opt?.ammo ?? Math.floor(Math.random() * 60) + 10;
@@ -285,8 +307,11 @@ function replay() {
 function gameLoop() {
     update();
     draw();
-    if (shipHealth > 0) {
+    if (shipHealth > 0 && gameState === 'started') {
         requestAnimationFrame(gameLoop);
+    }
+    else if (gameState === 'paused') {
+        console.log('game paused');
     } else {
         gameState = 'gameOver';
         props.ctx.fillStyle = 'red';
