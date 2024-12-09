@@ -13,7 +13,8 @@ const kaspaLogo = ref<HTMLImageElement | null>(null);
 
 interface Bullet {
     x: number,
-    y: number
+    y: number,
+    type?: 'default' | 'super'
 }
 
 // Game Constants
@@ -26,6 +27,7 @@ const alienHeight = 30;  // Increased for alien sprite
 const blockWidth = 80;
 const blockHeight = 80;
 const maxAmmo = 1000;
+const blockMergeThreshold = 30;
 
 // Game State
 let shipX = props.canvas.width / 2 - shipWidth / 2;
@@ -34,8 +36,9 @@ let aliens: Alien[] = [];
 let fallingBlocks: Block[] = [];
 let score = 0;
 let shipHealth = 100;
-let shipAmmo = 100;
+let shipAmmo = 1000;
 let keysPressed: { [Name: string]: boolean } = {};
+let fireMode: 'default' | 'double' | 'triple' = "default";
 
 // Alien class
 class Alien {
@@ -77,6 +80,8 @@ class Block {
         props.ctx.drawImage(kaspaLogo.value!, this.x, this.y, blockWidth, blockHeight);
         props.ctx.fillStyle = 'white';
         props.ctx.fillText(`${this.ammoValue}`, this.x + blockWidth / 2 - 6, this.y + 15);
+        // props.ctx.fillStyle = 'white';
+        // props.ctx.fillText(`${this.y}`, this.x, this.y);
         // props.ctx.strokeStyle = 'blue';
         // props.ctx.strokeRect(this.x, this.y, blockWidth, blockHeight);
     }
@@ -117,8 +122,24 @@ function update() {
     // Shoot bullets if ammo available and spacebar is held
     if ((keysPressed[' '] || keysPressed['w']) && shipAmmo > 0) {
         if (bullets.length === 0 || bullets[bullets.length - 1].y < props.canvas.height - shipHeight - 30) {
-            bullets.push({ x: shipX + shipWidth / 2, y: props.canvas.height - shipHeight - 10 });
-            shipAmmo--;
+            const bulletType = Math.random() > 0.9 ? 'super' : 'default';
+            switch (fireMode) {
+                case "default":
+                    bullets.push({ x: shipX + shipWidth / 2, y: props.canvas.height - shipHeight - 10, type: bulletType });
+                    shipAmmo--;
+                    break;
+                case "double":
+                    bullets.push({ x: shipX, y: props.canvas.height - shipHeight - 10, type: bulletType });
+                    bullets.push({ x: shipX + shipWidth, y: props.canvas.height - shipHeight - 10, type: bulletType });
+                    shipAmmo = Math.max(0, shipAmmo - 2);
+                    break;
+                case "triple":
+                    bullets.push({ x: shipX, y: props.canvas.height - shipHeight - 10, type: bulletType });
+                    bullets.push({ x: shipX + shipWidth / 2, y: props.canvas.height - shipHeight - 10, type: bulletType });
+                    bullets.push({ x: shipX + shipWidth, y: props.canvas.height - shipHeight - 10, type: bulletType });
+                    shipAmmo = Math.max(0, shipAmmo - 3);
+                    break;
+            }
         }
     }
 
@@ -132,6 +153,10 @@ function update() {
         bullets.forEach((bullet, bIndex) => {
             if (bullet.x > alien.x && bullet.x < alien.x + alienWidth &&
                 bullet.y > alien.y && bullet.y < alien.y + alienHeight) {
+
+                if (bullet.type === 'super') {
+                    alien.life = 0;
+                }
                 alien.life--;
                 bullets.splice(bIndex, 1);
                 if (alien.life <= 0) {
@@ -153,8 +178,9 @@ function update() {
         const block = fallingBlocks[i];
         for (let j = i + 1; j < fallingBlocks.length; j++) {
             const otherBlock = fallingBlocks[j];
-            if (block.x < otherBlock.x + blockWidth - 10 && block.x + blockWidth > otherBlock.x + 10 &&
-                block.y < otherBlock.y + blockHeight - 10 && block.y + blockHeight - 10 > otherBlock.y + 10) {
+            if (block.x < otherBlock.x + blockWidth && block.x + blockWidth > otherBlock.x &&
+                block.y < otherBlock.y + blockHeight && block.y + blockHeight > otherBlock.y &&
+                block.y > blockMergeThreshold) {
 
                 block.ammoValue += otherBlock.ammoValue;
                 block.healthValue += otherBlock.healthValue;
@@ -168,7 +194,7 @@ function update() {
     }
 
     fallingBlocks.forEach(block => {
-        block.y += 4 * ((block.ammoValue + block.healthValue) / 100);
+        block.y += 4 * ((block.ammoValue + block.healthValue) / 50);
         if (block.x < shipX + shipWidth && block.x + blockWidth > shipX &&
             block.y < props.canvas.height && block.y + blockHeight > props.canvas.height - shipHeight) {
             shipHealth += block.healthValue;
@@ -187,9 +213,21 @@ function draw() {
     drawShip(shipX, props.canvas.height - shipHeight);
 
     // Draw bullets
-    props.ctx.fillStyle = 'red';
     bullets.forEach(bullet => {
+        switch (bullet.type) {
+            case 'super':
+                props.ctx.fillStyle = 'lightblue';
+                props.ctx.shadowBlur = 10;
+                props.ctx.shadowColor = "white";
+                break;
+            default:
+                props.ctx.fillStyle = 'red';
+                break;
+        }
         props.ctx.fillRect(bullet.x - 2, bullet.y, 4, 10);
+
+        props.ctx.shadowBlur = 0;
+        props.ctx.shadowColor = "";
     });
 
     // Draw aliens

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import * as kaspa from '@/kaspa';
+import { Resolver } from '@/kaspa';
 import type { RpcClient } from '@/kaspa';
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 
-const client = computed(() => { rpc.value?.isConnected ? rpc.value?.getInfo() : '' });
 const isConnected = ref(false);
 const msg = ref('')
 
@@ -13,12 +13,19 @@ const emit = defineEmits<{
 
 let rpc = ref<RpcClient | null>(null);
 (async () => {
+
+    console.log('loading kaspa sdk');
+
     await kaspa.default('/kaspa_bg.wasm');
 
+    console.log('kaspa sdk loaded');
+
     rpc.value = new kaspa.RpcClient({
-        resolver: new kaspa.Resolver(),
+        resolver: new Resolver(),
         networkId: 'mainnet'
     });
+
+    console.log(rpc.value);
 
     if (rpc.value == null) return;
 
@@ -42,7 +49,11 @@ let rpc = ref<RpcClient | null>(null);
         emit('blockAdded', { hash: event.data.block.header.hash, count: event.data.block.transactions.length });
     });
 
+    console.log('connecting rpc');
+
     await rpc.value.connect();
+
+    console.log('connected rpc');
 
 })();
 </script>
