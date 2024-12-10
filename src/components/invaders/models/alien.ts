@@ -17,7 +17,6 @@ export default class Alien {
 
     draw() {
         // Draw alien pixel art
-        this.ctx.fillStyle = this.color!;
         this.drawAlien(this.x, this.y);
         this.ctx.fillStyle = 'white';
         this.ctx.textAlign = "center";
@@ -31,13 +30,14 @@ export default class Alien {
             "  xx  xx  ",
             " xxxxxxxx ",
             "xxxxxxxxxx",
-            "x xx  xx x",
+            "xoxx  xxox",
             "xxxxxxxxxx",
             "  x    x  "
         ];
         for (let row = 0; row < pattern.length; row++) {
             for (let col = 0; col < pattern[row].length; col++) {
-                if (pattern[row][col] === 'x') {
+                if (pattern[row][col] !== ' ') {
+                    this.ctx.fillStyle = pattern[row][col] === 'x' ? this.color! : 'darkred';
                     this.ctx.fillRect(x + col * (Alien.ALIEN_WIDTH / pattern[row].length), y + row * (Alien.ALIEN_HEIGHT / pattern.length), 4, 4);
                 }
             }

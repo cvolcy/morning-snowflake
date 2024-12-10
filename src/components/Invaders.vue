@@ -48,11 +48,16 @@ let keysPressed: { [Name: string]: boolean } = {};
 let game = new GameState(props.ctx, props.canvas, 'started', 0, playerShip, [], [], []);
 
 // Handle Input
-document.addEventListener('keydown', (e) => updateKeysPressed(e.key, true));
-document.addEventListener('keyup', (e) => updateKeysPressed(e.key, false));
+document.addEventListener('keydown', (e) => updateKeysPressed(e, true));
+document.addEventListener('keyup', (e) => updateKeysPressed(e, false));
 
-function updateKeysPressed(key: string, state: boolean) {
+function updateKeysPressed(e: KeyboardEvent, state: boolean) {
+    const { key } = e;
     keysPressed[key] = state;
+
+    if (key === ' ') {
+        e.preventDefault();
+    }
 
     if (key == 'm' && state == false) {
         game.playerShip.switchFireMode();
