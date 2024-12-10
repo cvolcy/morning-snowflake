@@ -22,25 +22,28 @@ function replay() {
 }
 </script>
 <template>
-    <div class="invaders-container container">
-        <p>
-            Use ⬅️ and ➡️ to move around.
-            use space bar to shoot. <br>
-            Kaspa blocks give 1 health and 1 ammo per transaction in the block.<br>
-            You loose health for each health point of each alien reaching the bottom.
-        </p>
-        <div class="canvas-container">
-            <canvas ref="canvas" width="800" height="600"></canvas>
-            <button v-if="showReplay" @click="replay">Replay</button>
+    <div class="invaders-container container flex justify-center text-center">
+        <div class="rounded-[0.5rem] border bg-background shadow inline-flex flex-col my-6 p-6">
+            <p class="mb-2">
+                Use ⬅️ and ➡️ to move around.
+                use space bar to shoot. <br>
+                Kaspa blocks give 1 health and 1 ammo per transaction in the block.<br>
+                You loose health for each health point of each alien reaching the bottom.
+            </p>
+            <div class="canvas-container">
+                <canvas ref="canvas" width="800" height="600"></canvas>
+                <button v-if="showReplay" class="border" @click="replay">Replay</button>
+            </div>
+            <Invaders ref="invaders" v-if="canvas" :canvas="canvas" :ctx="canvas!.getContext('2d')!"
+                @game-over="showReplay = true" />
+            <KaspaConnection @block-added="onBlockAdded" />
         </div>
-        <Invaders ref="invaders" v-if="canvas" :canvas="canvas" :ctx="canvas!.getContext('2d')!"
-            @game-over="showReplay = true" />
-        <KaspaConnection @block-added="onBlockAdded" />
     </div>
 </template>
 <style scoped>
 .canvas-container {
     position: relative;
+    max-height: calc(100dvh - 80px);
 }
 
 .canvas-container button {
@@ -52,19 +55,11 @@ function replay() {
 }
 
 canvas {
-    width: 100%;
+    max-width: 100%;
+    max-height: 100%;
     display: block;
     margin: 0 auto;
     background: black;
     border: 2px solid white;
-}
-</style>
-<style>
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    color: white;
-    text-align: center;
-    background-color: #111;
 }
 </style>
