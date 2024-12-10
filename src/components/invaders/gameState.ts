@@ -13,6 +13,7 @@ export default class GameState {
         this.fallingsBlocks.forEach(block => block.draw());
         // Draw score, health, and ammo
         this.ctx.fillStyle = 'white';
+        this.ctx.textAlign = "left";
         this.ctx.font = '13px "Press Start 2P"';
         this.ctx.fillText(`Score: ${this.score}`, 10, 30);
         this.ctx.fillText(`Health: ${this.playerShip.health}`, this.canvas.width - 300, 30);

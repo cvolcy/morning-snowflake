@@ -47,12 +47,19 @@ const playerShip = new PlayerShip(props.ctx, props.canvas.width / 2 - PlayerShip
 
 // Game State
 let keysPressed: { [Name: string]: boolean } = {};
-let fireMode: 'default' | 'double' | 'triple' = "default";
 let game = new GameState(props.ctx, props.canvas, 'started', 0, playerShip, [], [], []);
 
 // Handle Input
-document.addEventListener('keydown', (e) => keysPressed[e.key] = true);
-document.addEventListener('keyup', (e) => keysPressed[e.key] = false);
+document.addEventListener('keydown', (e) => updateKeysPressed(e.key, true));
+document.addEventListener('keyup', (e) => updateKeysPressed(e.key, false));
+
+function updateKeysPressed(key: string, state: boolean) {
+    keysPressed[key] = state;
+
+    if (key == 'm' && state == false) {
+        game.playerShip.switchFireMode();
+    }
+}
 
 function spawnAliens() {
     if (game.status !== 'started') return;
@@ -84,7 +91,7 @@ function update() {
     if ((keysPressed[' '] || keysPressed['w']) && playerShip.ammo > 0) {
         if (game.bullets.length === 0 || game.bullets[game.bullets.length - 1].y < props.canvas.height - PlayerShip.SHIP_HEIGHT - 30) {
             const bulletType = Math.random() > 0.9 ? 'super' : 'default';
-            switch (fireMode) {
+            switch (game.playerShip.fireMode) {
                 case "default":
                     game.bullets.push(new Bullet(props.ctx, playerShip.x + PlayerShip.SHIP_WIDTH / 2, props.canvas.height - PlayerShip.SHIP_HEIGHT - 10, bulletType));
                     playerShip.ammo--;
@@ -178,6 +185,8 @@ function replay() {
 
 // Game Loop
 function gameLoop() {
+    props.ctx.reset();
+
     update();
     draw();
     if (playerShip.health > 0 && game.status === 'started') {
@@ -185,10 +194,24 @@ function gameLoop() {
     }
     else if (game.status === 'paused') {
         console.log('game paused');
+        const imgData = props.ctx.getImageData(0, 0, props.ctx.canvas.width, props.ctx.canvas.height);
+        const data = imgData.data;
+        for (let i = 0; i < data.length; i += 4) {
+            const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+            data[i] = avg; // red
+            data[i + 1] = avg; // green
+            data[i + 2] = avg; // blue
+        }
+        props.ctx.putImageData(imgData, 0, 0);
+        props.ctx.fillStyle = 'white';
+        props.ctx.font = '40px "Press Start 2P"';
+        props.ctx.textAlign = "center";
+        props.ctx.fillText('Paused', props.canvas.width / 2, props.canvas.height / 2);
+        props.ctx.textAlign = "start";
     } else {
         game.status = 'gameOver';
         props.ctx.fillStyle = 'red';
-        props.ctx.font = '40px Arial';
+        props.ctx.font = '40px "Press Start 2P"';
         props.ctx.textAlign = "center";
         props.ctx.fillText('Game Over!', props.canvas.width / 2, props.canvas.height / 2);
         props.ctx.textAlign = "start";

@@ -6,7 +6,7 @@ export default class Alien {
 
     constructor(private ctx: CanvasRenderingContext2D, public x: number, public y: number, public life: number, private color?: string | CanvasGradient) {
         if (alienDefaultColors.length <= 2) {
-            const grad1 = ctx.createLinearGradient(0, 120, 0, 50);
+            const grad1 = ctx.createLinearGradient(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
             grad1.addColorStop(0, "#c63cf4");
             grad1.addColorStop(0.5, "#758dd2");
             grad1.addColorStop(1, "#22e5b2");
@@ -20,7 +20,9 @@ export default class Alien {
         this.ctx.fillStyle = this.color!;
         this.drawAlien(this.x, this.y);
         this.ctx.fillStyle = 'white';
-        this.ctx.fillText(this.life.toString(), this.x + 12, this.y + Alien.ALIEN_HEIGHT + 10);
+        this.ctx.textAlign = "center";
+        this.ctx.font = '8px "Press Start 2P"';
+        this.ctx.fillText(this.life.toString(), this.x + Alien.ALIEN_WIDTH / 2, this.y + Alien.ALIEN_HEIGHT + 10);
         // this.ctx.strokeStyle = "blue";
         // this.ctx.strokeRect(this.x, this.y, Alien.ALIEN_WIDTH, Alien.ALIEN_HEIGHT);
     }

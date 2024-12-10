@@ -9,7 +9,9 @@ export default class Block {
         // this.ctx.fillRect(this.x, this.y, Block.BLOCK_WIDTH, Block.BLOCK_HEIGHT);
         this.ctx.drawImage(this.kaspaLogo, this.x, this.y, Block.BLOCK_WIDTH, Block.BLOCK_HEIGHT);
         this.ctx.fillStyle = 'white';
-        this.ctx.fillText(`${this.ammoValue}`, this.x + Block.BLOCK_WIDTH / 2 - 6, this.y + 15);
+        this.ctx.textAlign = "center";
+        this.ctx.font = '8px "Press Start 2P"';
+        this.ctx.fillText(`${this.ammoValue}`, this.x + Block.BLOCK_WIDTH / 2, this.y + 15);
         // this.ctx.fillStyle = 'white';
         // this.ctx.fillText(`${this.y}`, this.x, this.y);
         // this.ctx.strokeStyle = 'blue';

@@ -14,7 +14,9 @@ export default class PlayerShip {
         "xxxxxxxxxx"
     ];
 
-    constructor(private ctx: CanvasRenderingContext2D, public x: number, public ammo: number = PlayerShip.DEFAULT_AMMO, public health: number = PlayerShip.DEFAULT_HEALTH) { }
+    public fireMode: 'default' | 'double' | 'triple' | string = "default";
+
+    constructor(private ctx: CanvasRenderingContext2D, public x: number, public ammo: number = PlayerShip.DEFAULT_AMMO, public health: number = PlayerShip.DEFAULT_HEALTH) {  }
 
     draw() {
         this.ctx.fillStyle = 'white';
@@ -27,6 +29,12 @@ export default class PlayerShip {
         }
         // this.ctx.strokeStyle = "blue";
         // this.ctx.strokeRect(this.x, this.ctx.canvas.height - PlayerShip.SHIP_HEIGHT, PlayerShip.SHIP_WIDTH, PlayerShip.SHIP_HEIGHT);
+    }
+
+    switchFireMode() {
+        const fireModes = ['default', 'double', 'triple'];
+        const fireModeIdx = fireModes.indexOf(this.fireMode);
+        this.fireMode = fireModes[(fireModeIdx + 1) % fireModes.length];
     }
 
     reset(canvas: HTMLCanvasElement) {
