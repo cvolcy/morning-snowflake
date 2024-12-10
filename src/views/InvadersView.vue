@@ -24,12 +24,6 @@ function replay() {
 <template>
     <div class="invaders-container container flex justify-center text-center">
         <div class="rounded-[0.5rem] border bg-background shadow inline-flex flex-col my-6 p-6">
-            <p class="mb-2">
-                Use ⬅️ and ➡️ to move around.
-                use space bar to shoot. <br>
-                Kaspa blocks give 1 health and 1 ammo per transaction in the block.<br>
-                You loose health for each health point of each alien reaching the bottom.
-            </p>
             <div class="canvas-container">
                 <canvas ref="canvas" width="800" height="600"></canvas>
                 <button v-if="showReplay" class="border" @click="replay">Replay</button>
@@ -37,6 +31,12 @@ function replay() {
             <Invaders ref="invaders" v-if="canvas" :canvas="canvas" :ctx="canvas!.getContext('2d')!"
                 @game-over="showReplay = true" />
             <KaspaConnection @block-added="onBlockAdded" />
+            <p class="mt-2">
+                Use ⬅️ and ➡️ to move around.
+                use space bar to shoot. <br>
+                Kaspa blocks give 1 health and 1 ammo per transaction in the block.<br>
+                You loose health for each health point of each alien reaching the bottom.
+            </p>
         </div>
     </div>
 </template>
