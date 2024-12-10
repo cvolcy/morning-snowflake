@@ -17,8 +17,6 @@ const emit = defineEmits<{
     gameOver: []
 }>();
 
-const kaspaLogo = ref<HTMLImageElement | null>(null);
-
 onMounted(() => {
     window.addEventListener('blur', pauseGame);
     window.addEventListener('focus', unPauseGame);
@@ -74,7 +72,7 @@ function spawnBlock(opt?: { health: number, ammo: number }) {
     const healthValue = opt?.health ?? Math.floor(Math.random() * 5) + 1;
     const ammoValue = opt?.ammo ?? Math.floor(Math.random() * 60) + 10;
     const x = Math.random() * (props.canvas.width - Block.BLOCK_WIDTH);
-    game.fallingsBlocks.push(new Block(props.ctx, x, 0, healthValue, ammoValue, kaspaLogo.value!));
+    game.fallingsBlocks.push(new Block(props.ctx, x, 0, healthValue, ammoValue));
 }
 
 // Update Game
@@ -230,5 +228,4 @@ gameLoop();
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Press+Start+2P&display=swap"
         rel="stylesheet">
-    <img ref="kaspaLogo" src="/kaspa-logo.svg" alt="" style="visibility: hidden; width: 0; height: 0;">
 </template>
