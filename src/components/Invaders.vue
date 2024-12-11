@@ -149,8 +149,8 @@ function update() {
         const block = game.fallingsBlocks[i];
         for (let j = i + 1; j < game.fallingsBlocks.length; j++) {
             const otherBlock = game.fallingsBlocks[j];
-            if (block.x < otherBlock.x + Block.BLOCK_WIDTH && block.x + Block.BLOCK_WIDTH > otherBlock.x &&
-                block.y < otherBlock.y + Block.BLOCK_HEIGHT && block.y + Block.BLOCK_HEIGHT > otherBlock.y &&
+            if (block.x < otherBlock.x + Block.BLOCK_WIDTH + 50 && block.x + Block.BLOCK_WIDTH + 50 > otherBlock.x &&
+                block.y < otherBlock.y + Block.BLOCK_HEIGHT + 50 && block.y + Block.BLOCK_HEIGHT + 50 > otherBlock.y &&
                 block.y > blockMergeThreshold) {
 
                 block.ammoValue += otherBlock.ammoValue;
@@ -165,7 +165,7 @@ function update() {
     }
 
     game.fallingsBlocks.forEach(block => {
-        block.y += 4 * ((block.ammoValue + block.healthValue) / 50);
+        block.y += 4 * Math.min(((block.ammoValue + block.healthValue) / 50), 2);
         if (block.x < playerShip.x + PlayerShip.SHIP_WIDTH && block.x + Block.BLOCK_WIDTH > playerShip.x &&
             block.y < props.canvas.height && block.y + Block.BLOCK_HEIGHT > props.canvas.height - PlayerShip.SHIP_HEIGHT) {
             playerShip.health += block.healthValue;

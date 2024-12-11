@@ -1,4 +1,4 @@
-import type { Alien, Block, Bullet, PlayerShip } from "./models";
+import { PlayerShip, type Alien, type Block, type Bullet } from "./models";
 
 export default class GameState {
     constructor(public ctx: CanvasRenderingContext2D, public canvas: HTMLCanvasElement, public status: 'started' | 'gameOver' | 'paused', public score: number, public playerShip: PlayerShip, public bullets: Bullet[], public fallingsBlocks: Block[], public aliens: Alien[]) {}
@@ -22,8 +22,8 @@ export default class GameState {
 
     replay() {
         this.status = 'started';
-        this.playerShip.ammo = 100;
-        this.playerShip.health = 100;
+        this.playerShip.ammo = PlayerShip.DEFAULT_AMMO;
+        this.playerShip.health = PlayerShip.DEFAULT_HEALTH;
         this.bullets = [];
         this.aliens = [];
         this.fallingsBlocks = [];
