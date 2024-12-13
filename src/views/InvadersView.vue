@@ -27,9 +27,9 @@ function replay() {
         <div class="rounded-[0.5rem] border bg-background shadow inline-flex flex-col my-6 p-6">
             <div class="canvas-container">
                 <canvas ref="canvas" width="800" height="600"></canvas>
-                <input id="shipCtrl" type="range" min="-2.5" max="757.5" class="w-full" v-model.number="posX">
+                <input id="shipCtrl" type="range" min="-2.5" max="757.5" class="w-full" style="display: none;"
+                    v-model.number="posX">
                 <button v-if="showReplay" class="border" @click="replay">Replay</button>
-                {{ posX }}
             </div>
             <Invaders v-if="canvas" ref="invaders" v-model:ship-x.number="posX" :canvas="canvas"
                 :ctx="canvas!.getContext('2d')!" @game-over="showReplay = true" />

@@ -44,8 +44,6 @@ function unPauseGame() {
 }
 
 // Game Constants
-const bulletSpeed = 7;
-const blockMergeThreshold = 30;
 const playerShip = new PlayerShip(props.ctx, props.canvas.width / 2 - PlayerShip.SHIP_WIDTH / 2);
 
 // Game State
@@ -59,7 +57,7 @@ props.canvas.addEventListener('touchstart', () => updateKeysPressed({ key: ' ', 
 props.canvas.addEventListener('mousedown', () => updateKeysPressed({ key: ' ', preventDefault() { } } as KeyboardEvent, true));
 document.addEventListener('touchend', () => updateKeysPressed({ key: ' ', preventDefault() { } } as KeyboardEvent, false));
 document.addEventListener('mouseup', () => updateKeysPressed({ key: ' ', preventDefault() { } } as KeyboardEvent, false));
-props.canvas.addEventListener('mousemove', (e) => { shipX.value = e.clientX - props.canvas.getBoundingClientRect().left; });
+props.canvas.addEventListener('mousemove', (e) => { shipX.value = e.clientX - props.canvas.getBoundingClientRect().left - (PlayerShip.SHIP_WIDTH / 2); });
 
 function updateKeysPressed(e: KeyboardEvent, state: boolean) {
     const { key } = e;
@@ -74,13 +72,6 @@ function updateKeysPressed(e: KeyboardEvent, state: boolean) {
     }
 }
 
-function spawnAliens() {
-    if (game.status !== 'started') return;
-    const life = Math.floor(Math.random() * 10) + 1;
-    const x = Math.random() * (props.canvas.width - Alien.ALIEN_WIDTH);
-    game.aliens.push(new Alien(props.ctx, x, 0, life));
-}
-
 function spawnBlock(opt?: { health: number, ammo: number }) {
     if (game.status !== 'started') return;
 
@@ -91,7 +82,7 @@ function spawnBlock(opt?: { health: number, ammo: number }) {
 }
 
 // Update Game
-function update() {
+function update(currentTime: number) {
     // Update ship movement
     if ((keysPressed['ArrowLeft'] || keysPressed['a']) && playerShip.x > 0) {
         playerShip.x -= PlayerShip.SHIP_SPEED;
@@ -126,65 +117,7 @@ function update() {
         }
     }
 
-    // Update bullets
-    game.bullets = game.bullets.filter(bullet => bullet.y > 0);
-    game.bullets.forEach(bullet => bullet.y -= bulletSpeed);
-
-    // Update aliens
-    game.aliens.forEach(alien => {
-        alien.y += 1;
-        game.bullets.forEach((bullet, bIndex) => {
-            if (bullet.x > alien.x && bullet.x < alien.x + Alien.ALIEN_WIDTH &&
-                bullet.y > alien.y && bullet.y < alien.y + Alien.ALIEN_HEIGHT) {
-
-                if (bullet.type === 'super') {
-                    alien.life = 0;
-                }
-                alien.life--;
-                game.bullets.splice(bIndex, 1);
-                if (alien.life <= 0) {
-                    game.aliens.splice(game.aliens.indexOf(alien), 1);
-                    game.score += 10;
-                }
-            }
-        });
-
-        if (alien.y > props.canvas.height) {
-            playerShip.health = Math.max(0, playerShip.health - alien.life);
-            game.aliens.splice(game.aliens.indexOf(alien), 1);
-        }
-    });
-
-    game.fallingsBlocks = game.fallingsBlocks.sort((a, b) => a.y - b.y)
-    // Update falling blocks
-    for (let i = 0; i < game.fallingsBlocks.length; i++) {
-        const block = game.fallingsBlocks[i];
-        for (let j = i + 1; j < game.fallingsBlocks.length; j++) {
-            const otherBlock = game.fallingsBlocks[j];
-            if (block.x < otherBlock.x + Block.BLOCK_WIDTH + 50 && block.x + Block.BLOCK_WIDTH + 50 > otherBlock.x &&
-                block.y < otherBlock.y + Block.BLOCK_HEIGHT + 50 && block.y + Block.BLOCK_HEIGHT + 50 > otherBlock.y &&
-                block.y > blockMergeThreshold) {
-
-                block.ammoValue += otherBlock.ammoValue;
-                block.healthValue += otherBlock.healthValue;
-
-                block.x = Math.ceil((block.x + otherBlock.x) / 2);
-                block.y = Math.ceil((block.y + otherBlock.y) / 2);
-
-                game.fallingsBlocks.splice(game.fallingsBlocks.indexOf(otherBlock), 1);
-            }
-        }
-    }
-
-    game.fallingsBlocks.forEach(block => {
-        block.y += 4 * Math.min(((block.ammoValue + block.healthValue) / 50), 2);
-        if (block.x < playerShip.x + PlayerShip.SHIP_WIDTH && block.x + Block.BLOCK_WIDTH > playerShip.x &&
-            block.y < props.canvas.height && block.y + Block.BLOCK_HEIGHT > props.canvas.height - PlayerShip.SHIP_HEIGHT) {
-            playerShip.health += block.healthValue;
-            playerShip.ammo = Math.min(playerShip.ammo + block.ammoValue, PlayerShip.MAX_AMMO);
-            game.fallingsBlocks.splice(game.fallingsBlocks.indexOf(block), 1);
-        }
-    });
+    game.update(currentTime);
 }
 
 // Draw Game
@@ -199,10 +132,10 @@ function replay() {
 }
 
 // Game Loop
-function gameLoop() {
+function gameLoop(currentTime: number) {
     props.ctx.reset();
 
-    update();
+    update(currentTime);
     draw();
     if (playerShip.health > 0 && game.status === 'started') {
         requestAnimationFrame(gameLoop);
@@ -234,11 +167,7 @@ function gameLoop() {
         emit('gameOver');
     }
 }
-
-// Start game
-setInterval(spawnAliens, 1000);
-// setInterval(spawnBlock, 5000);
-gameLoop();
+gameLoop(performance.now());
 </script>
 <template>
     <link rel="preconnect" href="https://fonts.googleapis.com">
