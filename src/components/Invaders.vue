@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 // import type { Alien, Bullet } from './invaders/models';
 import { Alien, Block, PlayerShip, Bullet } from './invaders/models';
 import GameState from './invaders/gameState';
@@ -16,6 +16,11 @@ defineExpose({
 const emit = defineEmits<{
     gameOver: []
 }>();
+
+const shipX = defineModel<number>('ship-x',);
+watch(shipX, () => {
+    game.playerShip.x = shipX.value ?? game.playerShip.x;
+})
 
 onMounted(() => {
     window.addEventListener('blur', pauseGame);
@@ -50,6 +55,11 @@ let game = new GameState(props.ctx, props.canvas, 'started', 0, playerShip, [], 
 // Handle Input
 document.addEventListener('keydown', (e) => updateKeysPressed(e, true));
 document.addEventListener('keyup', (e) => updateKeysPressed(e, false));
+props.canvas.addEventListener('touchstart', () => updateKeysPressed({ key: ' ', preventDefault() { } } as KeyboardEvent, true));
+props.canvas.addEventListener('mousedown', () => updateKeysPressed({ key: ' ', preventDefault() { } } as KeyboardEvent, true));
+document.addEventListener('touchend', () => updateKeysPressed({ key: ' ', preventDefault() { } } as KeyboardEvent, false));
+document.addEventListener('mouseup', () => updateKeysPressed({ key: ' ', preventDefault() { } } as KeyboardEvent, false));
+props.canvas.addEventListener('mousemove', (e) => { shipX.value = e.clientX - props.canvas.getBoundingClientRect().left; });
 
 function updateKeysPressed(e: KeyboardEvent, state: boolean) {
     const { key } = e;
@@ -85,9 +95,11 @@ function update() {
     // Update ship movement
     if ((keysPressed['ArrowLeft'] || keysPressed['a']) && playerShip.x > 0) {
         playerShip.x -= PlayerShip.SHIP_SPEED;
+        shipX.value = playerShip.x;
     }
     if ((keysPressed['ArrowRight'] || keysPressed['d']) && playerShip.x < props.canvas.width - PlayerShip.SHIP_WIDTH) {
         playerShip.x += PlayerShip.SHIP_SPEED;
+        shipX.value = playerShip.x;
     }
 
     // Shoot bullets if ammo available and spacebar is held
