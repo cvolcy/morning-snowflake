@@ -11,7 +11,8 @@ const router = createRouter({
       name: 'home',
       component: InvadersView,
       meta: {
-        title: 'Kas | Invaders'
+        title: 'Kas | Invaders',
+        viewport: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'
       }
     },
     {
@@ -38,17 +39,22 @@ const router = createRouter({
       name: 'invaders',
       component: InvadersView,
       meta: {
-        title: 'Kas | Invaders'
+        title: 'Kas | Invaders',
+        viewport: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'
       }
     }
   ],
 });
 
 const DEFAULT_TITLE = 'Kaspa';
+const DEFAULT_VIEWPORT: string = 'width=device-width, initial-scale=1.0';
 router.afterEach((to, from) => {
     nextTick(() => {
       // @ts-ignore
       document.title = to.meta.title || DEFAULT_TITLE;
+
+      const viewport = document.querySelector('head meta[name="viewport"]');
+      viewport?.setAttribute('content', to.meta.viewport || DEFAULT_VIEWPORT)
     });
 });
 
