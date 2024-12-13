@@ -18,6 +18,7 @@ export default class GameState {
         this.ctx.fillText(`Score: ${this.score}`, 10, 30);
         this.ctx.fillText(`Health: ${this.playerShip.health}`, this.canvas.width - 300, 30);
         this.ctx.fillText(`Ammo: ${this.playerShip.ammo}`, this.canvas.width - 150, 30);
+        this.ctx.fillText(`x: ${this.playerShip.x}`, this.canvas.width - 150, 60);
     }
 
     replay() {
