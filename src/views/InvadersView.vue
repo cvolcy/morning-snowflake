@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onBeforeMount, onBeforeUnmount, onMounted, ref } from 'vue';
 import KaspaConnection from '@/components/Kaspa.Connection.vue';
 import Invaders from '@/components/Invaders.vue';
 
@@ -7,6 +7,27 @@ const canvas = ref<HTMLCanvasElement | null>(null);
 const invaders = ref<typeof Invaders | null>(null);
 const posX = ref(400);
 const showReplay = ref(false);
+
+const canvasWidth = ref(800);
+const canvasHeight = ref(600);
+
+onBeforeMount(updateProportions);
+onMounted(() => { window.addEventListener('resize', updateProportions) });
+onBeforeUnmount(() => window.removeEventListener('resize', updateProportions));
+
+function updateProportions() {
+    const clientRatio = document.body.clientWidth / document.body.clientHeight;
+    const large = 800, short = 600;
+
+    if (clientRatio > 1) {
+        canvasWidth.value = large;
+        canvasHeight.value = short;
+    }
+    else {
+        canvasWidth.value = short;
+        canvasHeight.value = large;
+    }
+}
 
 function onBlockAdded(block: { hash: string, count: number }) {
     if (invaders.value != null) {
@@ -26,7 +47,7 @@ function replay() {
     <div class="invaders-container container flex justify-center text-center">
         <div class="rounded-[0.5rem] border bg-background shadow inline-flex flex-col my-6 p-6">
             <div class="canvas-container">
-                <canvas ref="canvas" width="800" height="600"></canvas>
+                <canvas ref="canvas" :width="canvasWidth" :height="canvasHeight"></canvas>
                 <input id="shipCtrl" type="range" min="-2.5" max="757.5" class="w-full" style="display: none;"
                     v-model.number="posX">
                 <button v-if="showReplay" class="border bg-background" @click="replay">Replay</button>

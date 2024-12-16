@@ -29,7 +29,7 @@ function toggleQrCode() {
             Show Support
             <Icon class="inline text-red-500" icon="lucide:heart" width="18" height="18" />
           </p>
-          <div class="flex flex-row flex-wrap justify-center">
+          <div class="flex flex-row flex-wrap justify-center break-all">
             <span class="text-[#14f1d9]">kaspa:</span>qzjl89yak9wkmpavn2rsfasuwcp85fslwd2e35glsuzrn0j4y6uwx<span
               class="text-[#14f1d9]">zm2kekrw</span>
             <a class="d-inline mx-1 hover:text-[#14f1d9]" href="javascript:void(0)" @click="copy(source)">
