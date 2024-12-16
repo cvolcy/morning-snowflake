@@ -8,8 +8,23 @@ const isConnected = ref(false);
 const msg = ref('')
 
 const emit = defineEmits<{
+    connection: [],
+    disconnection: [],
     blockAdded: [{ hash: string, count: number }]
 }>();
+
+defineExpose({
+    enableSubcriptions,
+    disableSubcriptions
+});
+
+async function enableSubcriptions() {
+    await rpc.value?.subscribeBlockAdded();
+}
+
+async function disableSubcriptions() {
+    await rpc.value?.unsubscribeBlockAdded();
+}
 
 let rpc = ref<RpcClient | null>(null);
 (async () => {
@@ -32,14 +47,16 @@ let rpc = ref<RpcClient | null>(null);
     rpc.value.addEventListener("connect", async (event) => {
         console.log("Connected to", rpc.value?.url);
         console.log("Subscribing to Block Added...");
-        await rpc.value?.subscribeBlockAdded();
+        await enableSubcriptions();
         isConnected.value = true;
+        emit('connection');
     });
 
     rpc.value.addEventListener("disconnect", async (event) => {
         console.log("Disconnected from", rpc.value?.url);
         console.log("Disconnect", event);
         isConnected.value = false;
+        emit('disconnection');
     });
 
     rpc.value.addEventListener("block-added", async (event) => {

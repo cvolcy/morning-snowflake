@@ -5,6 +5,7 @@ import Invaders from '@/components/Invaders.vue';
 
 const canvas = ref<HTMLCanvasElement | null>(null);
 const invaders = ref<typeof Invaders | null>(null);
+const kasconnection = ref<typeof KaspaConnection | null>(null);
 const posX = ref(400);
 const showReplay = ref(false);
 
@@ -12,8 +13,24 @@ const canvasWidth = ref(800);
 const canvasHeight = ref(600);
 
 onBeforeMount(updateProportions);
-onMounted(() => { window.addEventListener('resize', updateProportions) });
-onBeforeUnmount(() => window.removeEventListener('resize', updateProportions));
+onMounted(() => {
+    window.addEventListener('resize', updateProportions);
+    window.addEventListener('blur', pauseSubcriptions);
+    window.addEventListener('focus', unPauseSubcriptions);
+});
+onBeforeUnmount(() => {
+    window.removeEventListener('resize', updateProportions);
+    window.removeEventListener('blur', pauseSubcriptions);
+    window.removeEventListener('focus', unPauseSubcriptions);
+});
+
+async function unPauseSubcriptions() {
+    await kasconnection.value?.enableSubcriptions();
+}
+
+async function pauseSubcriptions() {
+    await kasconnection.value?.disableSubcriptions();
+}
 
 function updateProportions() {
     const clientRatio = document.body.clientWidth / document.body.clientHeight;
@@ -31,6 +48,7 @@ function updateProportions() {
 
 function onBlockAdded(block: { hash: string, count: number }) {
     if (invaders.value != null) {
+        console.log(block.hash);
         invaders.value.spawnBlock({
             health: 1,
             ammo: block.count
@@ -54,7 +72,7 @@ function replay() {
             </div>
             <Invaders v-if="canvas" ref="invaders" v-model:ship-x.number="posX" :canvas="canvas"
                 :ctx="canvas!.getContext('2d')!" @game-over="showReplay = true" />
-            <KaspaConnection @block-added="onBlockAdded" />
+            <KaspaConnection ref="kasconnection" @block-added="onBlockAdded" />
             <p class="mt-2">
                 Kaspa blocks give 1 health and 1 ammo per transaction in the block.<br>
                 You loose health for each health point of each alien reaching the bottom.
