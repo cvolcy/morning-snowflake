@@ -29,14 +29,12 @@ function replay() {
                 <canvas ref="canvas" width="800" height="600"></canvas>
                 <input id="shipCtrl" type="range" min="-2.5" max="757.5" class="w-full" style="display: none;"
                     v-model.number="posX">
-                <button v-if="showReplay" class="border" @click="replay">Replay</button>
+                <button v-if="showReplay" class="border bg-background" @click="replay">Replay</button>
             </div>
             <Invaders v-if="canvas" ref="invaders" v-model:ship-x.number="posX" :canvas="canvas"
                 :ctx="canvas!.getContext('2d')!" @game-over="showReplay = true" />
             <KaspaConnection @block-added="onBlockAdded" />
             <p class="mt-2">
-                Use ⬅️ and ➡️ to move around.
-                use space bar to shoot. <br>
                 Kaspa blocks give 1 health and 1 ammo per transaction in the block.<br>
                 You loose health for each health point of each alien reaching the bottom.
             </p>

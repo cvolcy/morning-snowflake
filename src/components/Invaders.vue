@@ -37,7 +37,7 @@ function pauseGame() {
 }
 
 function unPauseGame() {
-    if (game.status === 'paused') {
+    if (game.status === 'paused' && !game.forcedPause) {
         game.status = 'started';
         requestAnimationFrame(gameLoop);
     }
@@ -58,6 +58,7 @@ props.canvas.addEventListener('mousedown', () => updateKeysPressed({ key: ' ', p
 document.addEventListener('touchend', () => updateKeysPressed({ key: ' ', preventDefault() { } } as KeyboardEvent, false));
 document.addEventListener('mouseup', () => updateKeysPressed({ key: ' ', preventDefault() { } } as KeyboardEvent, false));
 props.canvas.addEventListener('mousemove', (e) => { shipX.value = e.clientX - props.canvas.getBoundingClientRect().left - (PlayerShip.SHIP_WIDTH / 2); });
+props.canvas.addEventListener('touchmove', (e) => { shipX.value = e.touches[0].clientX - props.canvas.getBoundingClientRect().left - (PlayerShip.SHIP_WIDTH / 2); });
 
 function updateKeysPressed(e: KeyboardEvent, state: boolean) {
     const { key } = e;
@@ -69,6 +70,17 @@ function updateKeysPressed(e: KeyboardEvent, state: boolean) {
 
     if (key == 'm' && state == false) {
         game.playerShip.switchFireMode();
+    }
+
+    if (key === 'Escape' && game.status !== 'gameOver' && state == false) {
+        if (game.status === 'paused') {
+            game.forcedPause = false;
+            unPauseGame();
+        }
+        else {
+            game.forcedPause = true;
+            pauseGame();
+        }
     }
 }
 

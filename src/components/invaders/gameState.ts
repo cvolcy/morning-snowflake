@@ -1,6 +1,7 @@
 import { Alien, Block, PlayerShip, type Bullet } from "./models";
 
 export default class GameState {
+    public forcedPause:boolean = false;
     private readonly blockMergeThreshold = 30;
 
     private lastAlienSpawn: number = 0;
