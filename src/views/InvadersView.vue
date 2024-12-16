@@ -62,6 +62,7 @@ canvas {
     margin: 0 auto;
     background: black;
     border: 2px solid white;
+    user-select: none;
 }
 
 #shipCtrl {

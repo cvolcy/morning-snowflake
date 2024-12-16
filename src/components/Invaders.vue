@@ -53,12 +53,18 @@ let game = new GameState(props.ctx, props.canvas, 'started', 0, playerShip, [], 
 // Handle Input
 document.addEventListener('keydown', (e) => updateKeysPressed(e, true));
 document.addEventListener('keyup', (e) => updateKeysPressed(e, false));
-props.canvas.addEventListener('touchstart', () => updateKeysPressed({ key: ' ', preventDefault() { } } as KeyboardEvent, true));
+props.canvas.addEventListener('touchstart', (e) => { updateKeysPressed({ key: ' ', preventDefault() { } } as KeyboardEvent, true); shipX.value = getPosXFromClient(e.touches[0].clientX, props.canvas.getBoundingClientRect()) });
 props.canvas.addEventListener('mousedown', () => updateKeysPressed({ key: ' ', preventDefault() { } } as KeyboardEvent, true));
 document.addEventListener('touchend', () => updateKeysPressed({ key: ' ', preventDefault() { } } as KeyboardEvent, false));
 document.addEventListener('mouseup', () => updateKeysPressed({ key: ' ', preventDefault() { } } as KeyboardEvent, false));
-props.canvas.addEventListener('mousemove', (e) => { shipX.value = e.clientX - props.canvas.getBoundingClientRect().left - (PlayerShip.SHIP_WIDTH / 2); });
-props.canvas.addEventListener('touchmove', (e) => { shipX.value = e.touches[0].clientX - props.canvas.getBoundingClientRect().left - (PlayerShip.SHIP_WIDTH / 2); });
+props.canvas.addEventListener('mousemove', (e) => { shipX.value = getPosXFromClient(e.clientX, props.canvas.getBoundingClientRect()) });
+props.canvas.addEventListener('touchmove', (e) => { shipX.value = getPosXFromClient(e.touches[0].clientX, props.canvas.getBoundingClientRect()) });
+
+function getPosXFromClient(clientX: number, boundingClientRect: DOMRect) {
+    const factor = (clientX - boundingClientRect.left) / boundingClientRect.width;
+
+    return props.canvas.width * factor - (PlayerShip.SHIP_WIDTH / 2);
+}
 
 function updateKeysPressed(e: KeyboardEvent, state: boolean) {
     const { key } = e;
